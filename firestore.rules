@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isPresenter() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() == 'bhegan@gmail.com';
+    }
+
+    match /participantResults/{resultId} {
+      // A participant can open only a specific certificate document by its QR ID.
+      // Collection listing and bulk reads are restricted to the presenter.
+      allow get: if isPresenter() || resource.data.publicCertificate == true;
+      allow list: if isPresenter();
+
+      // Public quiz submissions may create a certificate/result record.
+      // The public client cannot read the collection, edit records, or delete records.
+      allow create: if request.resource.data.keys().hasAll([
+          'name', 'age', 'title', 'level', 'score', 'total', 'answers', 'completedAt', 'publicCertificate'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'name', 'age', 'title', 'level', 'score', 'total', 'answers', 'completedAt', 'publicCertificate'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 40
+        && request.resource.data.age is int
+        && request.resource.data.age >= 4
+        && request.resource.data.age <= 100
+        && request.resource.data.title is string
+        && request.resource.data.level in ['Beginner', 'Elementary', 'Intermediate', 'Advanced', 'Expert']
+        && request.resource.data.score is int
+        && request.resource.data.score >= 0
+        && request.resource.data.score <= 3
+        && request.resource.data.total == 3
+        && request.resource.data.answers is list
+        && request.resource.data.answers.size() == 3
+        && request.resource.data.completedAt is string
+        && request.resource.data.publicCertificate == true;
+
+      allow update, delete: if isPresenter();
+    }
+  }
+}
