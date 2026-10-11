@@ -36,3 +36,10 @@ Authentication → Users: confirm `bhegan@gmail.com` exists and can sign in.
 - The participant access code has not been implemented as a secure gate. A code checked only in browser JavaScript can be bypassed. Use a server-validated code or callable Cloud Function if you need to enforce one.
 - This uploaded source contains a small sample question bank (8 questions per age level), not 28 per band. This update does not expand the bank.
 - Existing old QR links containing `?certificate=...` remain supported, but those legacy links encode the certificate data in the URL and can be altered. Newly generated QR codes use Firestore document IDs.
+
+
+## Direct certificate generation (added)
+- After a quiz is saved, the result screen includes **Generate Certificate Now** and **Print / Save as PDF**.
+- In Presenter Dashboard, each participant row has **Generate** and **View QR** actions.
+- `public/certificate-template.png` is the blank English Exhibition certificate artwork used as the background; keep it in the `public` folder during deployment.
+- The certificate opens in a new tab. Use **Print / Save as PDF** on that certificate page. Allow pop-ups for your hosting domain if the browser blocks it.
